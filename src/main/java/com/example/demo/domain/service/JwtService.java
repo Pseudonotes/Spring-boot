@@ -35,6 +35,7 @@ public class JwtService {
         return Jwts
                 .builder()
                 .claims()
+                .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 3600 * 30))
