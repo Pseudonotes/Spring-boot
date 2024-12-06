@@ -1,62 +1,66 @@
 package com.example.demo;
 
 import com.example.demo.domain.repo.UserRepository;
+import com.example.demo.domain.service.JwtService;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootApplication
 @RestController
 public class DemoApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@Bean
-	public CommandLineRunner commandLineRunner(){
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-		return (args)->{
-			System.out.println("args "+ Arrays.toString(args));
-		};
-	}
-
-	@PostMapping("/create")
-	public User createUser(@RequestBody UserDto user){
-		final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-		return userRepository.save(user.toUser(encoder.encode(user.password())));
-	}
+    @Autowired
+    private JwtService jwtService;
 
 
-	@GetMapping("/hello")
-	public String helloController(HttpServletRequest request){
-		return "Hello world." + request.getSession().getId();
-	}
+    @PostMapping("/create")
+    public User createUser(@RequestBody UserDto user) {
+        final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        return userRepository.save(user.toUser(encoder.encode(user.password())));
+    }
 
-	@GetMapping("/csrf")
-	public CsrfToken getCsrfToken(HttpServletRequest request){
-		return (CsrfToken) request.getAttribute("_csrf");
-	}
+
+    @PostMapping("/signin")
+    public String loginUser(@RequestBody UserDto user) {
+        if (
+                //details forwarded to auth manager for confirmation
+                authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(user.name(), user.password()))
+                        .isAuthenticated()
+        )
+            return jwtService.generateToken(user.name());
+        else
+            return "login failed";
+    }
+
+
+    @GetMapping("/hello")
+    public String helloController(HttpServletRequest request) {
+        return "Hello world." + request.getSession().getId();
+    }
+
+    @GetMapping("/csrf")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
+    }
 
 }
