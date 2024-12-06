@@ -5,8 +5,5 @@ public record UserDto(
         String password
 ) {
 
-    public User toUser(String encrypted){
-        return new User(name,encrypted);
-    }
 
 }

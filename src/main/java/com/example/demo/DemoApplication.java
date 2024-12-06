@@ -1,21 +1,15 @@
 package com.example.demo;
 
 import com.example.demo.domain.repo.UserRepository;
-import com.example.demo.domain.service.JwtService;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDto;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.SignatureException;
 
 @SpringBootApplication
 @RestController
@@ -29,31 +23,17 @@ public class DemoApplication {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
-
 
     @PostMapping("/create")
     public User createUser(@RequestBody UserDto user) {
-        final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return userRepository.save(user.toUser(encoder.encode(user.password())));
+//        final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        return userRepository.save(user.toUser());
     }
 
 
     @PostMapping("/signin")
     public String loginUser(@RequestBody UserDto user) {
-        if (
-            //details forwarded to auth manager for confirmation
-                authenticationManager
-                        .authenticate(new UsernamePasswordAuthenticationToken(user.name(), user.password()))
-                        .isAuthenticated()
-        )
-            return jwtService.generateToken(user.name());
-        else
-            return "login failed";
+        return "login failed";
     }
 
 
@@ -65,17 +45,6 @@ public class DemoApplication {
     @GetMapping("/csrf")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
-    }
-
-
-    @ExceptionHandler(SignatureException.class)
-    public String handleSignatureException(SignatureException e){
-        return "Invalid Jwt";
-    }
-
-    @ExceptionHandler(ExpiredJwtException.class)
-    public String handleExpiredJwtException(ExpiredJwtException e){
-        return "Session expired";
     }
 
 }

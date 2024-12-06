@@ -1,62 +1,64 @@
 package com.example.demo.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Document
-public class User {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class User implements UserDetails {
 
     @Id
     private String id;
 
-    private String name;
-
+    private String firstName;
+    private String lastName;
+    private String email;
     private String password;
 
-    public User() {
-    }
+    private Role role;
 
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-    }
-
-    public User(String id, String name, String password) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(() -> role.name());
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
