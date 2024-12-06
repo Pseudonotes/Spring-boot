@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: demo
+
+  security:
+    user: # default Spring Boot user
+    #overwritten if custom config is registered in spring context
+      name: admin
+      password: 2021
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: springsecuritydb
+
+  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#    hibernate:
+#      ddl-auto: update # or another appropriate value (validate, create, etc.)
+#    show-sql: true # optional, logs SQL queries for debugging
