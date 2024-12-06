@@ -4,6 +4,7 @@ import com.example.demo.domain.repo.UserRepository;
 import com.example.demo.domain.service.JwtService;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDto;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -14,8 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SignatureException;
+
 @SpringBootApplication
 @RestController
+@ControllerAdvice
 public class DemoApplication {
 
     public static void main(String[] args) {
@@ -42,7 +46,7 @@ public class DemoApplication {
     @PostMapping("/signin")
     public String loginUser(@RequestBody UserDto user) {
         if (
-                //details forwarded to auth manager for confirmation
+            //details forwarded to auth manager for confirmation
                 authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(user.name(), user.password()))
                         .isAuthenticated()
@@ -61,6 +65,17 @@ public class DemoApplication {
     @GetMapping("/csrf")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
+    }
+
+
+    @ExceptionHandler(SignatureException.class)
+    public String handleSignatureException(SignatureException e){
+        return "Invalid Jwt";
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public String handleExpiredJwtException(ExpiredJwtException e){
+        return "Session expired";
     }
 
 }
