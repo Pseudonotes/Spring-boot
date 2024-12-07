@@ -27,7 +27,8 @@ public class DemoApplication {
     @PostMapping("/create")
     public User createUser(@RequestBody UserDto user) {
 //        final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return userRepository.save(user.toUser());
+//        return userRepository.save(user);
+        return new User();
     }
 
 
