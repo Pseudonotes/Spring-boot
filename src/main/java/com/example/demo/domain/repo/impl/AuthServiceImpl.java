@@ -7,6 +7,8 @@ import com.example.demo.model.AuthRequest;
 import com.example.demo.model.AuthResponse;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -44,9 +47,10 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(token, user.toDto());
     }
 
+
     @Override
     public AuthResponse loginUser(AuthRequest authRequest) {
-
+        log.info("resolving {} ", authRequest.email());
         //token generated
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

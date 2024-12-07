@@ -11,5 +11,12 @@ public record UserDto(
         return new User(firstName,lastName,email,password);
     }
 
-
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "email='" + email + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                '}';
+    }
 }
